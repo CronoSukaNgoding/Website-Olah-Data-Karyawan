@@ -1,4 +1,5 @@
-function generateTable(idTable, url, columns, order) {
+function generateTable(idTable, url, columns,order, start, end) {
+
     var dataTable = new DataTable(idTable, {
         columns: columns,
         order: order,
@@ -23,6 +24,11 @@ function generateTable(idTable, url, columns, order) {
     $.ajax({
         url: url,
         method: 'POST',
+        data: {
+            start: start,
+            end: end
+        },
+        dataSrc: 'data',
         success: function (response) {
             console.log(response);
             if (response && response.error === 'No data found') {
@@ -32,6 +38,9 @@ function generateTable(idTable, url, columns, order) {
                 var data = response;
                 $(".loader-container").show();
                 dataTable.clear().rows.add(data).draw();
+                $(".loader-container").hide();
+            }else{
+                $(".loader-container").show();
                 $(".loader-container").hide();
             }
         },

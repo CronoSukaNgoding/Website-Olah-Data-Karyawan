@@ -57,6 +57,7 @@
     <div id="collapseSalary" class="collapse <?= (strpos($currentUrl, '/dashboard/salary') === 0) ? 'show' : '' ?>" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
         <div class="bg-white py-2 collapse-inner rounded">
             <h6 class="collapse-header"></h6>
+            <a class="collapse-item " <?= ($currentUrl === '/dashboard/salary/create')  ? 'style="color:blue;"' : '' ?> href="<?= base_url('/dashboard/salary/create')?>">Create</a>
             <a class="collapse-item " <?= ($currentUrl === '/dashboard/salary')  ? 'style="color:blue;"' : '' ?> href="<?= base_url('/dashboard/salary')?>">list</a>
         </div>
     </div>

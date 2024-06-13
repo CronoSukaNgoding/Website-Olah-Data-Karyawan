@@ -17,7 +17,6 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Action</th>
                             <th>Name</th>
                             <th>NIP</th>
                             <th>Position</th>
@@ -57,15 +56,6 @@
                 data: null,
                 render: function (data, type, row, meta) {
                     return meta.row + 1;
-                }
-            },
-            {
-                data: 'id',
-                render: function (data, type, row, meta) {
-                    return `
-                        <a class="btn btn-outline-secondary btn-sm" href="${domain}/dashboard/employee/edit/${data}" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                        <a class="btn btn-outline-danger btn-sm" onclick="cbModal('${data}')"><i class="fas fa-trash"></i></a>
-                    `;
                 }
             },
             { data: null,

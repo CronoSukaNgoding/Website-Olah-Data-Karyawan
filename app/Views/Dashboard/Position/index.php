@@ -63,7 +63,7 @@
                 render: function (data, type, row, meta) {
                     return `
                         <a class="btn btn-outline-secondary btn-sm" href="${domain}/dashboard/position/edit/${data}" title="Edit"><i class="fas fa-pencil-alt"></i></a>
-                        <a class="btn btn-outline-danger btn-sm" onclick="cbModal('${data}')"><i class="fas fa-trash"></i></a>
+                        
                     `;
                 }
             },

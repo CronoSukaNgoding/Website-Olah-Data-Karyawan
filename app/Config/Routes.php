@@ -24,8 +24,6 @@ $routes->group('dashboard', static function ($routes){
     $routes->group('position', static function ($routes){
         $routes->get('', 'PositionsController::index');
         $routes->get('dropdown', 'PositionsController::dropdown');
-        $routes->get('create', 'PositionsController::create');
-        $routes->post('create', 'PositionsController::save');
         $routes->post('list', 'PositionsController::list');
         $routes->get('edit/(:any)', 'PositionsController::edit/$1');
         $routes->post('edit/(:any)', 'PositionsController::update/$1');

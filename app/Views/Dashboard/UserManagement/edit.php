@@ -172,10 +172,8 @@
 $(document).ready(function () {    
     getRole(selectedRole);
     getPosition(selectedPosition);
-    // Get the dropdown element
-    let dropdown = document.getElementById('pickStatus');
 
-    // Set the selected value if it matches any option value
+    let dropdown = document.getElementById('pickStatus');
     dropdown.value = selectedStatus;
     $("#pickRole").select2({
         placeholder: {

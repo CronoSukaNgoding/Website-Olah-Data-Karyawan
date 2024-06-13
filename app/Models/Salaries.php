@@ -15,8 +15,9 @@ class Salaries extends Model
         'id',
         'employeeID',
         'salary_date',
-        'basic_salary',
+        'positionID',
         'bonus',
+        'gradeID',
         'tax',
         'total_salary',
     ];

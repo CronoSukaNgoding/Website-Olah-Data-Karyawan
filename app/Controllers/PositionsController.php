@@ -26,7 +26,7 @@ class PositionsController extends BaseController
         $data =[
             'title' => 'Salary Create'
         ];
-        return view('Dashboard/Salary/create', $data);
+        return view('Dashboard/Position/create', $data);
     }
 
     public function save()
@@ -41,7 +41,7 @@ class PositionsController extends BaseController
             $html = $this->valid->listErrors();
             $oneline = preg_replace('/\s+/', ' ', $html);
             $this->sesi->setFlashdata('validation', $oneline);
-            return redirect()->to('dashboard/salary/create');
+            return redirect()->to('dashboard/position/create');
         }
         $data=[
             'id'=>$this->uuid,
@@ -54,12 +54,12 @@ class PositionsController extends BaseController
         try {
             $daftar = $this->position->insert($data);
             $this->sesi->setFlashdata('sukses', 'Selamat Anda Berhasil Membuat akun');
-            return redirect()->to('/dashboard/salary');
+            return redirect()->to('/dashboard/position');
        } catch (\Exception $e) {
             dd($e);
             $e->getMessage();
             $this->sesi->setFlashdata('sukses', 'Anda Gagal Mendaftar');
-            return redirect()->to('/dashboard/salary/create');
+            return redirect()->to('/dashboard/position/create');
        }
 
     }
@@ -71,15 +71,13 @@ class PositionsController extends BaseController
     }
 
     public function edit($id){
-        $dataUser = $this->user->select('*')
-        ->join('employees','salaries.employeeID = employees.id')
-        ->join('positions','positions.id = employees.positionID')
-        ->where('salaries.id',$id)->first();
+        $dataPosition = $this->position
+        ->where('positions.id',$id)->first();
         $data =[
-            'dataUser' => $dataUser,
+            'dataPosition' => $dataPosition,
             'title'=>'Salary Edit'
         ];
-        return view('Dashboard/Salary/edit', $data);
+        return view('Dashboard/Position/edit', $data);
     }
 
     public function update($id)
@@ -94,24 +92,31 @@ class PositionsController extends BaseController
             $html = $this->valid->listErrors();
             $oneline = preg_replace('/\s+/', ' ', $html);
             $this->sesi->setFlashdata('validation', $oneline);
-            return redirect()->to('dashboard/salary/create');
+            return redirect()->to('dashboard/position/create');
         }
+        $basicSalary = $this->request->getVar('basic_salary');
+        $bonusRate = $this->request->getVar('bonus_rate');
+
+        // Convert the formatted values back to float
+        // $basicSalary = (int) str_replace(['Rp', '.', ','], ['', '', ''], $basicSalary);
+        $bonusRate = floatval(str_replace(',', '.', str_replace('.', '', $bonusRate)));
+
         $data=[
             'name'=>$this->request->getVar('name'),
             'grade'=>$this->request->getVar('grade'),
-            'basic_salary'=>$this->request->getVar('basic_salary'),
-            'bonus_rate' => $this->request->getVar('bonus_rate'),
+            'basic_salary'=>$basicSalary,
+            'bonus_rate' => $bonusRate
         ];
         // dd($data);
         try {
             $daftar = $this->position->update($id,$data);
             $this->sesi->setFlashdata('sukses', 'Selamat Anda Berhasil Mengedit data user');
-            return redirect()->to('/dashboard/salary');
+            return redirect()->to('/dashboard/position');
        } catch (\Exception $e) {
             dd($e);
             $e->getMessage();
             $this->sesi->setFlashdata('sukses', 'Anda Gagal Mendaftar');
-            return redirect()->to('/dashboard/salary/create');
+            return redirect()->to('/dashboard/position/create');
        }
 
     }
@@ -120,7 +125,7 @@ class PositionsController extends BaseController
        try {
             $this->position->delete($id);
             $this->sesi->setFlashdata('sukses', 'Selamat Anda Berhasil Menghapus data user');
-            return redirect()->to('/dashboard/salary');
+            return redirect()->to('/dashboard/position');
         } catch (\Exception $e) {
             dd($e);
        }
