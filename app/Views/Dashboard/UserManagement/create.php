@@ -17,7 +17,7 @@
                     <h6 class="m-0 font-weight-bold text-primary"><?=$title?></h6>
                 </div>
                 <div class="card-body">
-                    <form action="" method="post">
+                    <form action="" id="form" method="post">
                     <div class="mb-3">
                         <label for="name" class="form-label">Name</label>
                         <input type="text" class="form-control" name="name" id="name" aria-describedby="emailHelp">
@@ -160,6 +160,23 @@
             }
         });
     }
+    function validateDates() {
+        var birthDate = new Date(document.getElementById('birth_date').value);
+        var hireDate = new Date(document.getElementById('hire_date').value);
+
+        if (birthDate > hireDate) {
+            alert('Tanggal lahir tidak boleh lebih besar dari tanggal perekrutan.');
+            return false;
+        }
+
+        return true;
+    }
+
+    document.getElementById('form').addEventListener('submit', function(event) {
+        if (!validateDates()) {
+            event.preventDefault();
+        }
+    });
 
 
 $(document).ready(function () {    

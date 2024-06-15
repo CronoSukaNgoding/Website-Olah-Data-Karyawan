@@ -16,6 +16,7 @@ $routes->group('dashboard', static function ($routes){
         $routes->get('create', 'EmployeesController::create');
         $routes->post('create', 'EmployeesController::save');
         $routes->post('list', 'EmployeesController::list');
+        $routes->post('dropdown', 'EmployeesController::dropdown');
         $routes->get('edit/(:any)', 'EmployeesController::edit/$1');
         $routes->post('edit/(:any)', 'EmployeesController::update/$1');
         $routes->delete('delete/(:any)', 'EmployeesController::delete/$1');
@@ -36,6 +37,7 @@ $routes->group('dashboard', static function ($routes){
         $routes->get('create', 'SalariesController::create');
         $routes->post('create', 'SalariesController::save');
         $routes->post('list', 'SalariesController::list');
+        $routes->post('getTotal', 'SalariesController::getTotal');
         $routes->get('edit/(:any)', 'SalariesController::edit/$1');
         $routes->post('edit/(:any)', 'SalariesController::update/$1');
         $routes->delete('delete/(:any)', 'SalariesController::delete/$1');

@@ -36,20 +36,21 @@ class SalariesController extends BaseController
         }
         $isBonus =  $this->request->getVar('useBonus');
 
-        $positionID =$this->request->getVar('positionID');
+        $positionID = $this->request->getVar('positionID');
+        $employeeID  = $this->request->getVar('employeeID');
         $dataStaffByPosition = $this->position->select('*, employees.id as employeeID')
         ->join('employees','employees.positionID = positions.id')
         ->where('positions.id',$positionID)->findAll();
         
         try {
             foreach ($dataStaffByPosition as $salary) {
-                $bonus = ((float) $salary->bonus_rate / 100) *((float) $salary->basic_salary) + (float) $salary->basic_salary;
+                $bonus = ((float) $salary->bonus_rate / 100) *((float) $salary->basic_salary) ;
                 $tax = (float) $salary->basic_salary * 0.05;
     
                 if($isBonus == 1){
                     $data = [
                         'id' => $this->uuid,
-                        'employeeID' => $salary->employeeID,
+                        'employeeID' => $employeeID,
                         'gradeID' => $salary->grade,
                         'salary_date' => $this->request->getVar('salary_date'),
                         'basic_salary' => $salary->basic_salary,
@@ -60,7 +61,7 @@ class SalariesController extends BaseController
                 }else{
                     $data = [
                         'id' => $this->uuid,
-                        'employeeID' => $salary->employeeID,
+                        'employeeID' => $employeeID,
                         'gradeID' => $salary->grade,
                         'salary_date' => $this->request->getVar('salary_date'),
                         'basic_salary' => $salary->basic_salary,
@@ -86,11 +87,59 @@ class SalariesController extends BaseController
 
     }
 
-    public function list(){
-        $data = $this->salary->select('*, salaries.created_at as tglBuat')
-        ->join('employees','salaries.employeeID = employees.id')
-        ->join('positions','positions.grade = salaries.gradeID')
-        ->findAll();
+    public function list($startDate = null,$endDate= null, $employeeID= null){
+        $param = $_REQUEST;
+        $TEST = [];
+
+        if(isset($param['employeeID']) && !empty($param['employeeID'])){
+            if(isset($param['starDate']) && !empty($param['starDate'])) {
+                $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
+                    ->join('employees', 'salaries.employeeID = employees.id')
+                    ->join('positions', 'positions.grade = salaries.gradeID')
+                    ->where("salaries.salary_date BETWEEN '{$param['startDate']}' AND '{$param['endDate']}'")
+                    ->findAll();
+            }else{
+                $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
+                ->join('employees', 'salaries.employeeID = employees.id')
+                ->join('positions', 'positions.grade = salaries.gradeID')
+                ->where('employees.id', $param['employeeID'])
+                ->findAll();
+            }
+
+        }elseif(isset($param['starDate']) && !empty($param['starDate'])) {
+            $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
+                ->join('employees', 'salaries.employeeID = employees.id')
+                ->join('positions', 'positions.grade = salaries.gradeID')
+                ->where("salaries.salary_date BETWEEN '{$param['startDate']}' AND '{$param['endDate']}'")
+                ->findAll();
+        }else{
+            $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
+                ->join('employees', 'salaries.employeeID = employees.id')
+                ->join('positions', 'positions.grade = salaries.gradeID')
+                ->findAll();
+        }
+        
+        if ($TEST) {
+            $data = [
+                "draw" => null,
+                "recordsTotal" => count($TEST),
+                "recordsFiltered" => count($TEST),
+                "data" => $TEST,
+                
+            ];
+
+            return $this->response->setJSON(['response'=> $data, 'param'=> $param]);
+        } else {
+            return $this->response->setStatusCode(200)->setJSON(['error' => 'No data found']);
+        }
+    }
+
+    public function getTotal(){
+        $positionID = $this->request->getVar('positionID');
+        $employeeID  = $this->request->getVar('employeeID');
+        $data = $this->position->select('*, employees.id as employeeID')
+        ->join('employees','employees.positionID = positions.id')
+        ->where('positions.id',$positionID)->where('employees.positionID',$positionID)->first();
         return $this->response->setJSON($data);
     }
 

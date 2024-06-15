@@ -21,4 +21,17 @@ class EmployeesController extends BaseController
         ->findAll();
         return $this->response->setJSON($data);
     }
+
+    public function dropdown(){
+        $positionID = $this->request->getVar('positionID');
+        if($positionID){
+            $data = $this->employee->where('positionID',$positionID)
+            ->findAll();
+        }else{
+            $data = $this->employee
+            ->findAll();
+        }
+        
+        return $this->response->setJSON($data);
+    }
 }
