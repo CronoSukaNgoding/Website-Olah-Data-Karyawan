@@ -29,6 +29,10 @@
                     </tbody>
                    
                 </table>
+                <div class="loader-container">
+                    <div class="loader"></div>
+                    <p class="loader-p">Memuat data...</p>
+                </div>
             </div>
         </div>
     </div>

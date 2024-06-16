@@ -24,7 +24,7 @@
 <?php $this->section('isKonten');?>
 <div class="container-fluid">
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-gray-800"><?=$title?> </h1>
+    <h1 class="h3 mb-2 text-gray-800"><?=$title?></h1>
 
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
@@ -42,15 +42,8 @@
                 <label for="end_date">End Date:</label>
                 <input type="date" id="end_date">
             </div>
-            <div class="mb-3">
-                <label for="pickKaryawan" class="form-label">Employee</label>
-                <select id="pickKaryawan" name="employeeID" class="form-select ">
-                    
-                </select>
-            
-            </div>
 
-            <button id="filter_button"class="btn btn-primary mb-3">Filter</button>
+            <button id="filter_button"class="btn btn-primary">Filter</button>
             <div class="table-responsive">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
@@ -108,30 +101,22 @@ function formatDate(dateStr) {
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 
-<!-- <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">  -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css"> 
     <script type="text/javascript" charset="utf8" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-     <!-- <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> 
-    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script> 
-<script href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"></script> -->
-<script src="https://cdn.datatables.net/2.0.8/js/dataTables.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.dataTables.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.print.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script> 
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<!-- <script src="/assets/libs/jquery/jquery.min.js"></script> -->
+<script href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"></script>
 <script>
     const domain = window.location.host.match(/localhost/g) ? `http://${window.location.host}` : `https://${window.location.host}`;
-
+    var EmployeeID = `<?=$employeeID?>`;
     
 
     function filterData() {
         var formattedStartDate = $("#start_date").val();
         var formattedendDate = $("#end_date").val();
         if(formattedStartDate  === "" && formattedendDate === ""){
-            var employeeID = $("#pickKaryawan").val();
-           
+            var employeeID = EmployeeID;
 
             if (dataTable) {
             dataTable.destroy();
@@ -153,28 +138,25 @@ function formatDate(dateStr) {
                 var endDate = new Date(endDateObj.getTime() - (endDateObj.getTimezoneOffset() * 60000)).toISOString().slice(0, 19).replace("T", " ");
 
                 // Convert to local string
-                startDate = new Date(startDateObj.getTime() + (7 * 60 * 60 * 1000)).toISOString().slice(0, 19).replace("T", " ");
+                startDate = new Date(startDateObj.getTime() ).toISOString().slice(0, 19).replace("T", " ");
                 endDate = new Date(endDateObj.getTime() + (7 * 60 * 60 * 1000)).toISOString().slice(0, 19).replace("T", " ");
 
-                
-                var employeeID = $("#pickKaryawan").val();
-                
+                var employeeID = EmployeeID;
+
 
                 if (dataTable) {
                 dataTable.destroy();
                 }
                 dataTable = generateTable('#dataTable', '/dashboard/salary/list', column, order, startDate, endDate,employeeID);
             } catch (error) {
-               
                 alert(error);
                 return;
             }
         }
     }
     $(document).ready(function () {
-        dataTable = generateTable('#dataTable', '/dashboard/salary/list', column, order);
+        dataTable = generateTable('#dataTable', '/dashboard/salary/list', column, order,'','',EmployeeID);
         $("#filter_button").on("click", filterData);
-        getKaryawan();
     });
 
     function generateTable(idTable, url, columns, order, startDate, endDate,employeeID) {
@@ -189,11 +171,7 @@ function formatDate(dateStr) {
             processing: false,
             serverSide: false,
             dom: 'Bfrtip',
-            buttons: [
-                'colvis',
-                'excel',
-                'print'
-            ],
+            buttons: ["copy", "excel", "pdf"],
             lengthMenu: [
                 [10, 25, 50, -1],
                 [10, 25, 50, "All"]
@@ -205,7 +183,6 @@ function formatDate(dateStr) {
             startDate: startDate,
             endDate: endDate
         };
-
 
         $.ajax({
             url: url,
@@ -225,7 +202,6 @@ function formatDate(dateStr) {
                 );
             },
             success: function (response) {
-
                 if (response && response.error === 'No data found') {
                     newDataTable.clear().draw();
                     $(".loader-container").hide();
@@ -249,42 +225,9 @@ function formatDate(dateStr) {
         return newDataTable;
     }
     
+   
 
-
-    function getKaryawan(positionID) {
-        $.ajax({
-            url: `${domain}/dashboard/employee/dropdown`,
-            method: 'POST',
-            dataType: 'json',
-            data :{
-                positionID : null
-            },
-            success: function (response) {
-                $('#pickKaryawan').empty();
-                if (response) {
-                    $('#pickKaryawan').append($('<option>', {
-                        value: '',
-                        text: 'Choose Employee'
-                    }));
-                    response.forEach(function (employee) {
-                        let name = employee.first_name + ' ' + employee.last_name;
-                        $('#pickKaryawan').append($('<option>', {
-                            value: employee.id,
-                            text: name
-                        }));
-                    });
-                } else {
-                    $('#pickKaryawan').append($('<option>', {
-                        value: '',
-                        text: 'No Employees found'
-                    }));
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error(error);
-            }
-        });
-    }
+    
 
     
 

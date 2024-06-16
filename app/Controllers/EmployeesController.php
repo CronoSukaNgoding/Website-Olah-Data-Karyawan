@@ -22,6 +22,11 @@ class EmployeesController extends BaseController
         return $this->response->setJSON($data);
     }
 
+    public function count(){
+        $data = $this->employee->countAllResults();
+        return $this->response->setJSON($data);
+    }
+
     public function dropdown(){
         $positionID = $this->request->getVar('positionID');
         if($positionID){

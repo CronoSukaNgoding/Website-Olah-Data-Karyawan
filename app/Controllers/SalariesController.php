@@ -9,10 +9,23 @@ class SalariesController extends BaseController
 {
     public function index()
     {
-        $data =[
-            'title' => 'Salary List'
-        ];
-        return view('Dashboard/Salary/index', $data);
+        if($this->sesi->get('role')== 1){
+            $data =[
+                'title' => 'Salary List'
+            ];
+            return view('Dashboard/Salary/index', $data);
+        }else{
+            $userID = $this->sesi->get('user_id');
+            $checkDataEmployee = $this->user->select('employees.id as employeeID')->where('users.id', $userID)
+            ->join('employees','employees.userID = users.id')
+            ->first();
+            $data =[
+                'title' => 'Salary List',
+                'employeeID' => $checkDataEmployee->employeeID
+            ];
+            return view('Dashboard/Salary/indexEmployee', $data);
+        }
+        
     }
 
     public function create()
@@ -38,42 +51,38 @@ class SalariesController extends BaseController
 
         $positionID = $this->request->getVar('positionID');
         $employeeID  = $this->request->getVar('employeeID');
-        $dataStaffByPosition = $this->position->select('*, employees.id as employeeID')
-        ->join('employees','employees.positionID = positions.id')
-        ->where('positions.id',$positionID)->findAll();
+        $salary = $this->position->select('*')
+        ->where('positions.id',$positionID)->first();
         
         try {
-            foreach ($dataStaffByPosition as $salary) {
-                $bonus = ((float) $salary->bonus_rate / 100) *((float) $salary->basic_salary) ;
-                $tax = (float) $salary->basic_salary * 0.05;
-    
-                if($isBonus == 1){
-                    $data = [
-                        'id' => $this->uuid,
-                        'employeeID' => $employeeID,
-                        'gradeID' => $salary->grade,
-                        'salary_date' => $this->request->getVar('salary_date'),
-                        'basic_salary' => $salary->basic_salary,
-                        'bonus' => $bonus,
-                        'tax' => $tax,
-                        'total_salary' => (float) $salary->basic_salary + $bonus - $tax,
-                    ];
-                }else{
-                    $data = [
-                        'id' => $this->uuid,
-                        'employeeID' => $employeeID,
-                        'gradeID' => $salary->grade,
-                        'salary_date' => $this->request->getVar('salary_date'),
-                        'basic_salary' => $salary->basic_salary,
-                        'bonus' => 0,
-                        'tax' => $tax,
-                        'total_salary' => (float) $salary->basic_salary - $tax,
-                    ];
-                }
-                
-                
-                $daftar = $this->salary->insert($data);
+            $bonus = ((float) $salary->bonus_rate / 100) *((float) $salary->basic_salary) ;
+            $tax = (float) $salary->basic_salary * 0.05;
+            if($isBonus == 1){
+                $data = [
+                    'id' => $this->uuid,
+                    'employeeID' => $employeeID,
+                    'gradeID' => $salary->grade,
+                    'salary_date' => $this->request->getVar('salary_date'),
+                    'basic_salary' => $salary->basic_salary,
+                    'bonus' => $bonus,
+                    'tax' => $tax,
+                    'total_salary' => (float) $salary->basic_salary + $bonus - $tax,
+                ];
+            }else{
+                $data = [
+                    'id' => $this->uuid,
+                    'employeeID' => $employeeID,
+                    'gradeID' => $salary->grade,
+                    'salary_date' => $this->request->getVar('salary_date'),
+                    'basic_salary' => $salary->basic_salary,
+                    'bonus' => 0,
+                    'tax' => $tax,
+                    'total_salary' => (float) $salary->basic_salary - $tax,
+                ];
             }
+            
+            
+            $daftar = $this->salary->insert($data);
             
         
             $this->sesi->setFlashdata('sukses', 'Selamat Anda Berhasil Membuat akun');
@@ -91,33 +100,18 @@ class SalariesController extends BaseController
         $param = $_REQUEST;
         $TEST = [];
 
-        if(isset($param['employeeID']) && !empty($param['employeeID'])){
-            if(isset($param['starDate']) && !empty($param['starDate'])) {
-                $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
-                    ->join('employees', 'salaries.employeeID = employees.id')
-                    ->join('positions', 'positions.grade = salaries.gradeID')
-                    ->where("salaries.salary_date BETWEEN '{$param['startDate']}' AND '{$param['endDate']}'")
-                    ->findAll();
-            }else{
-                $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
-                ->join('employees', 'salaries.employeeID = employees.id')
-                ->join('positions', 'positions.grade = salaries.gradeID')
-                ->where('employees.id', $param['employeeID'])
-                ->findAll();
-            }
+        $query_builder = $this->salary->select('*, salaries.created_at as tglBuat')
+            ->join('employees', 'salaries.employeeID = employees.id')
+            ->join('positions', 'positions.grade = salaries.gradeID');
 
-        }elseif(isset($param['starDate']) && !empty($param['starDate'])) {
-            $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
-                ->join('employees', 'salaries.employeeID = employees.id')
-                ->join('positions', 'positions.grade = salaries.gradeID')
-                ->where("salaries.salary_date BETWEEN '{$param['startDate']}' AND '{$param['endDate']}'")
-                ->findAll();
-        }else{
-            $TEST = $this->salary->select('*, salaries.created_at as tglBuat')
-                ->join('employees', 'salaries.employeeID = employees.id')
-                ->join('positions', 'positions.grade = salaries.gradeID')
-                ->findAll();
+        if(isset($param['employeeID']) && !empty($param['employeeID'])){
+            $query_builder->where('employees.id', $param['employeeID']);
         }
+
+        if(isset($param['startDate']) && !empty($param['startDate'])) {
+            $query_builder->where("salaries.salary_date BETWEEN '{$param['startDate']}' AND '{$param['endDate']}'");
+        }
+        $TEST = $query_builder->findAll();
         
         if ($TEST) {
             $data = [
@@ -125,7 +119,6 @@ class SalariesController extends BaseController
                 "recordsTotal" => count($TEST),
                 "recordsFiltered" => count($TEST),
                 "data" => $TEST,
-                
             ];
 
             return $this->response->setJSON(['response'=> $data, 'param'=> $param]);

@@ -4,10 +4,14 @@ use CodeIgniter\Router\RouteCollection;
 use App\Controller\EmployeesController;
 use App\Controller\PositionsController;
 use App\Controller\SalariesController;
+use App\Controller\AuthController;
 /**
  * @var RouteCollection $routes
  */
-
+$routes->get('/', 'AuthController::Login');
+$routes->get('login', 'AuthController::index');
+$routes->post('login', 'AuthController::cekLogin');
+$routes->get('/logout', 'AuthController::Logout');
 $routes->group('dashboard', static function ($routes){
     $routes->get('', 'Home::index');
 
@@ -20,6 +24,7 @@ $routes->group('dashboard', static function ($routes){
         $routes->get('edit/(:any)', 'EmployeesController::edit/$1');
         $routes->post('edit/(:any)', 'EmployeesController::update/$1');
         $routes->delete('delete/(:any)', 'EmployeesController::delete/$1');
+        $routes->get('count', 'EmployeesController::count');
     });
 
     $routes->group('position', static function ($routes){
@@ -51,6 +56,12 @@ $routes->group('dashboard', static function ($routes){
         $routes->get('edit/(:any)', 'UsersController::edit/$1');
         $routes->post('edit/(:any)', 'UsersController::update/$1');
         $routes->delete('delete/(:any)', 'UsersController::delete/$1');
+    });
+
+    $routes->group('profile', static function ($routes){
+        $routes->get('edit/(:any)', 'ProfileController::edit/$1');
+        $routes->post('edit/(:any)', 'ProfileController::update/$1');
+
     });
     
 
