@@ -10,18 +10,29 @@ class UsersController extends BaseController
 {
     public function index()
     {
-        $data =[
-            'title' => 'Users List'
-        ];
-        return view('Dashboard/UserManagement/index', $data);
+        if($this->sesi->get('role')== 1 || $this->sesi->get('role')== 2){
+            $data =[
+                'title' => 'Users List'
+            ];
+            return view('Dashboard/UserManagement/index', $data);
+        }else{
+            $this->sesi->setFlashdata('error', 'Anda Tidak Mempunyai Hak Akses');
+            return redirect()->to('/dashboard');
+        }
+        
     }
 
     public function create()
     {
-        $data =[
-            'title' => 'Users Create'
-        ];
-        return view('Dashboard/UserManagement/create', $data);
+        if($this->sesi->get('role')== 1 || $this->sesi->get('role')== 2){
+            $data =[
+                'title' => 'Users Create'
+            ];
+            return view('Dashboard/UserManagement/create', $data);
+        }else{
+            $this->sesi->setFlashdata('error', 'Anda Tidak Mempunyai Hak Akses');
+            return redirect()->to('/dashboard');
+        }        
     }
 
     public function save()
@@ -90,16 +101,22 @@ class UsersController extends BaseController
     }
 
     public function edit($id){
-        $dataUser = $this->user->select('*,users.name as userName, groupRole.name as roleName')
-        ->join('employees','employees.userID = users.id')
-        ->join('positions','positions.id = employees.positionID')
-        ->join('groupRole','groupRole.id = users.role_id')
-        ->where('users.id',$id)->first();
-        $data =[
-            'dataUser' => $dataUser,
-            'title'=>'User Edit'
-        ];
-        return view('Dashboard/UserManagement/edit', $data);
+        if($this->sesi->get('role')== 1 || $this->sesi->get('role')== 2){
+            $dataUser = $this->user->select('*,users.name as userName, groupRole.name as roleName')
+            ->join('employees','employees.userID = users.id')
+            ->join('positions','positions.id = employees.positionID')
+            ->join('groupRole','groupRole.id = users.role_id')
+            ->where('users.id',$id)->first();
+            $data =[
+                'dataUser' => $dataUser,
+                'title'=>'User Edit'
+            ];
+            return view('Dashboard/UserManagement/edit', $data);
+        }else{
+            $this->sesi->setFlashdata('error', 'Anda Tidak Mempunyai Hak Akses');
+            return redirect()->to('/dashboard');
+        } 
+        
     }
 
     public function update($id)

@@ -9,10 +9,16 @@ class PositionsController extends BaseController
 {
     public function index()
     {
-        $data =[
-            'title' => 'Position List'
-        ];
-        return view('Dashboard/Position/index', $data);
+        if($this->sesi->get('role')== 1 || $this->sesi->get('role')== 2){
+            $data =[
+                'title' => 'Position List'
+            ];
+            return view('Dashboard/Position/index', $data);
+        }else{
+            $this->sesi->setFlashdata('error', 'Anda Tidak Mempunyai Hak Akses');
+            return redirect()->to('/dashboard');
+        }
+        
     }
 
     public function dropdown()
@@ -23,10 +29,16 @@ class PositionsController extends BaseController
 
     public function create()
     {
-        $data =[
-            'title' => 'Salary Create'
-        ];
-        return view('Dashboard/Position/create', $data);
+        if($this->sesi->get('role')== 1 || $this->sesi->get('role')== 2){
+             $data =[
+                'title' => 'Salary Create'
+            ];
+            return view('Dashboard/Position/create', $data);
+        }else{
+            $this->sesi->setFlashdata('error', 'Anda Tidak Mempunyai Hak Akses');
+            return redirect()->to('/dashboard');
+        }
+       
     }
 
     public function save()
@@ -71,13 +83,19 @@ class PositionsController extends BaseController
     }
 
     public function edit($id){
-        $dataPosition = $this->position
-        ->where('positions.id',$id)->first();
-        $data =[
-            'dataPosition' => $dataPosition,
-            'title'=>'Salary Edit'
-        ];
-        return view('Dashboard/Position/edit', $data);
+        if($this->sesi->get('role')== 1 || $this->sesi->get('role')== 2){
+            $dataPosition = $this->position
+            ->where('positions.id',$id)->first();
+            $data =[
+                'dataPosition' => $dataPosition,
+                'title'=>'Salary Edit'
+            ];
+            return view('Dashboard/Position/edit', $data);
+        }else{
+            $this->sesi->setFlashdata('error', 'Anda Tidak Mempunyai Hak Akses');
+            return redirect()->to('/dashboard');
+        }
+        
     }
 
     public function update($id)
